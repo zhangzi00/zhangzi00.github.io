@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ÔN TẬP KỲ THI QUỐC DÂN 2025</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{
+      --bg: linear-gradient(135deg,#f0f9ff 0%,#ffffff 100%);
+      --card:#ffffff;
+      --accent:#06b6d4;
+      --btn-start:#10b981;
+      --text:#0f172a;
+      --muted:#64748b;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{width:100%;max-width:520px;background:var(--card);padding:36px;border-radius:16px;box-shadow:0 10px 30px rgba(2,6,23,0.08);text-align:center}
+    h1{font-size:28px;margin-bottom:10px;color:var(--accent);font-weight:700}
+    p.lead{color:var(--muted);margin-bottom:26px;font-size:16px}
+    .actions{display:flex;flex-direction:column;gap:14px}
+    a.btn{display:inline-block;text-decoration:none;background:linear-gradient(90deg,#34d399,#10b981);color:white;padding:14px 18px;border-radius:12px;font-weight:600;font-size:16px;box-shadow:0 8px 20px rgba(16,185,129,0.18);transition:transform .18s,box-shadow .18s}
+    a.btn.secondary{background:linear-gradient(90deg,#60a5fa,#3b82f6);box-shadow:0 8px 20px rgba(59,130,246,0.12)}
+    a.btn.tertiary{background:linear-gradient(90deg,#fbbf24,#f59e0b);box-shadow:0 8px 20px rgba(245,158,11,0.15)}
+    a.btn.quaternary{background:linear-gradient(90deg,#ec4899,#db2777);box-shadow:0 8px 20px rgba(219,39,119,0.15)}
+    a.btn:active{transform:translateY(1px)}
+    @media(min-width:540px){.actions{flex-direction:column}a.btn{max-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <h1>ÔN TẬP KỲ THI QUỐC DÂN 2025</h1>
+    <p class="lead">Chọn nội dung ôn tập.</p>
+
+    <div class="actions" role="group" aria-label="Chọn ôn tập">
+      <a class="btn" href="Ontap1 (Published)/index.html" role="button">Chuyên môn 1</a>
+      <a class="btn secondary" href="Ontap2 (Published)/index.html" role="button">Chuyên môn 2</a>
+      <a class="btn tertiary" href="Ontap3 (Published)/index.html" role="button">Chuyên môn 3</a>
+      <a class="btn quaternary" href="NQ3 (Published)/index.html" role="button">Nghị quyết Chương 3</a>
+    </div>
+  </div>
+</body>
+</html>
