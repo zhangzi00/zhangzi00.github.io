@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bảng tổng hợp cá nhân</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--nav:#262329;--text:#222;--muted:#8a8a90;--line:#e6e6ea;--head:#e4edf9;--accent:#f7b500;--pill:#fdecc8;--pillt:#e8710a;--field:#f6f6f8;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--text);font:400 16px/1.5 "Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav{background:var(--nav);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.nav-in{max-width:1420px;margin:0 auto;height:86px;display:flex;align-items:center;gap:36px;padding:0 20px}
+.brand img{display:block;height:auto;max-height:62px;width:auto}
+.menu{display:flex;gap:36px;margin-left:20px}
+.nav a{color:#fff;text-decoration:none;font-weight:600;font-size:17px;white-space:nowrap}
+.sp{flex:1}
+.user{display:flex;align-items:center;gap:12px;font-weight:600;font-size:17px}
+.ava{width:44px;height:44px;border-radius:50%;background:#f2d9a8;color:#5b3d00;display:grid;place-items:center;font-weight:700;font-size:15px}
+.hero{background:linear-gradient(120deg,#3a301c,#2b2717 55%,#22210f);color:#fff;padding:36px 0 36px;border-top:1px solid #3b3840}
+.wrap{max-width:1580px;margin:0 auto;padding:0 20px}
+.crumb{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:500}
+.crumb a{color:#fff;text-decoration:none}
+h1{margin:34px 0 0;font-size:32px;line-height:1.2;font-weight:700}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-top:6px;overflow-x:auto}
+.tabs a{padding:24px 18px 14px;font-size:19px;font-weight:500;color:var(--text);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a.on{font-weight:700;border-color:var(--accent)}
+.filters{display:flex;align-items:center;gap:10px;margin:38px 0 36px;flex-wrap:wrap}
+.sel{position:relative}
+.sel select,.search input{height:62px;border:1px solid var(--line);border-radius:8px;background:var(--field);font:400 19px "Montserrat",system-ui,sans-serif;color:var(--text);padding:0 36px 0 12px;appearance:none;-webkit-appearance:none;cursor:pointer}
+.sel::after{content:"";position:absolute;right:16px;top:50%;border:5px solid transparent;border-top-color:#777;transform:translateY(-25%);pointer-events:none}
+.sel.w1 select{width:150px}.sel.w2 select{width:150px}
+.search{position:relative;flex:0 1 421px;min-width:220px}
+.search input{width:100%;background:#fff;padding:0 14px 0 54px;cursor:text}
+.search input::placeholder{color:#b3b3b8}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#7c8794}
+.sort{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:20px;font-weight:500}
+.sort .sel select{width:147px}
+.sel select:focus-visible,.search input:focus-visible{outline:3px solid #1b6fcf;outline-offset:1px}
+.msg{display:none;background:#fff7e0;border:1px solid #f1d58a;border-radius:10px;padding:14px 18px;margin:-12px 0 24px;font-size:16px;align-items:center;gap:14px;flex-wrap:wrap}
+.msg.show{display:flex}
+.msg button{border:0;background:var(--accent);color:#fff;font:700 16px "Montserrat",system-ui,sans-serif;border-radius:8px;padding:10px 18px;cursor:pointer}
+.msg.err{background:#fdeaea;border-color:#f0b4b4}
+.tw{overflow-x:auto;border-radius:10px}
+table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed;font-size:19px}
+thead th{background:var(--head);height:64px;text-align:left;font-weight:600;padding:0 8px}
+thead th:first-child{border-radius:10px 0 0 0;padding-left:10px}thead th:last-child{border-radius:0 10px 0 0;text-align:center}
+tbody td{padding:12px 8px;border-bottom:1px solid var(--line);vertical-align:middle;height:80px}
+tbody td:first-child{padding-left:14px}
+td.nm{font-weight:600}
+td.nm a{color:inherit;text-decoration:none}td.nm a:hover{color:#1b6fcf;text-decoration:underline}
+td.ac{text-align:center}
+.pill{display:inline-block;background:var(--pill);color:var(--pillt);border-radius:20px;padding:5px 12px;font-weight:500}
+.btn{display:inline-block;border:1px solid #cfcfd5;border-radius:10px;padding:8px 16px;font-weight:600;font-size:18px;color:var(--text);text-decoration:none;background:#fff}
+a.btn:hover{border-color:#1b6fcf;color:#1b6fcf}
+.btn.off{opacity:.45}
+.empty{text-align:center;color:var(--muted);padding:40px 0;font-size:18px}
+.foot{display:flex;align-items:center;margin:18px 0 60px;gap:16px}
+.count{color:var(--muted);font-size:15px;min-width:200px}
+.pager{display:flex;align-items:center;gap:14px;margin:0 auto;padding-right:200px}
+.pager button{border:0;background:transparent;color:#8a8a90;min-width:27px;height:36px;border-radius:5px;font:500 18px "Montserrat",system-ui,sans-serif;cursor:pointer}
+.pager button.on{background:#fdeaa5;color:var(--text);font-weight:700;text-decoration:underline}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager button:focus-visible{outline:3px solid #1b6fcf}
+@media (max-width:900px){
+ .menu,.uname{display:none}.nav-in{gap:16px;height:70px}.brand img{max-height:48px}
+ h1{font-size:24px;margin-top:22px}.sort{margin-left:0;font-size:16px;gap:10px}
+ .sel select,.search input{height:52px;font-size:16px}.sel.w1 select,.sel.w2 select{width:130px}.sort .sel select{width:130px}
+ .pager{padding-right:0}.count{min-width:0}.foot{flex-direction:column;align-items:flex-start}.pager{margin:0}
+}
+.ov{position:fixed;inset:0;background:rgba(20,18,24,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.ov[hidden]{display:none}
+.dlg{background:#fff;border-radius:14px;width:min(980px,100%);height:min(86vh,860px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative}
+.dh{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--head)}
+.dh h2{margin:0;font-size:22px;flex:1;font-weight:700}
+.ib{border:0;background:transparent;font:600 22px "Montserrat",system-ui,sans-serif;width:40px;height:40px;border-radius:8px;cursor:pointer;color:var(--text)}
+.ib:hover{background:rgba(0,0,0,.08)}.ib[hidden]{display:none}
+.db{flex:1;overflow:auto;padding:20px}
+.df{display:flex;align-items:center;gap:14px;padding:14px 20px;border-top:1px solid var(--line);background:#fff}
+.df[hidden]{display:none}.df span{flex:1;color:var(--muted);font-size:15px}
+.pb{border:0;background:var(--accent);color:#fff;font:700 16px "Montserrat",system-ui,sans-serif;border-radius:8px;padding:12px 22px;cursor:pointer}
+.pb:disabled{opacity:.4;cursor:default}
+.sb2{border:1px solid #cfcfd5;background:#fff;font:600 15px "Montserrat",system-ui,sans-serif;border-radius:8px;padding:10px 16px;cursor:pointer;color:var(--text)}
+.sb2:hover{border-color:#1b6fcf;color:#1b6fcf}
+.sv-intro{text-align:center;padding:50px 10px;color:var(--muted)}
+.sv-intro p{margin:0 0 20px;font-size:16px}
+.sv-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sv-bar b{flex:1;min-width:160px;word-break:break-all}
+.fl{display:grid;gap:8px}
+.fl button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:14px 16px;font:500 16px "Montserrat",system-ui,sans-serif;cursor:pointer;color:var(--text)}
+.fl button:hover{border-color:#1b6fcf;background:#eef4fc}
+.sv-s{position:sticky;top:-20px;background:#fff;padding:20px 0 10px;margin-top:-20px;z-index:2}
+.sv-s input{width:100%;height:50px;border:1px solid var(--line);border-radius:8px;background:#fff;font:400 16px "Montserrat",system-ui,sans-serif;padding:0 14px;color:var(--text)}
+.sv-s input:focus-visible{outline:3px solid #1b6fcf;outline-offset:1px}
+details.mp{margin:0 0 10px;border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:14px;background:var(--field)}
+details.mp summary{cursor:pointer;font-weight:600}
+.mp .g{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.mp select{height:36px;border:1px solid var(--line);border-radius:6px;font:400 14px "Montserrat",system-ui,sans-serif;max-width:260px}
+.mp label{display:inline-flex;gap:4px;align-items:center;margin-right:8px}
+.gh{margin:18px 0 6px;font-weight:700;color:#5b3d00;background:var(--pill);padding:8px 12px;border-radius:8px;font-size:15px}
+.qi{border:1px solid var(--line);border-radius:10px;margin-top:8px;overflow:hidden}
+.qi.chg{border-color:var(--accent);background:#fffaf0}
+.qh{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;cursor:pointer}
+.qh:hover{background:#f3f7fd}
+.qn{font-weight:700;white-space:nowrap;color:#1b6fcf}
+.qt{flex:1;font-size:16px}
+.qa{white-space:nowrap;font-size:14px;font-weight:600;background:#e3f4e6;color:#1b7a2f;border-radius:14px;padding:3px 10px}
+.qa.no{background:#fdeaea;color:#b33}.qa.pd{background:var(--pill);color:var(--pillt)}
+.qo{padding:4px 14px 14px;display:grid;gap:6px}
+.qo button{display:flex;gap:10px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px 12px;font:400 15px "Montserrat",system-ui,sans-serif;cursor:pointer;color:var(--text)}
+.qo button:hover{border-color:#1b6fcf}
+.qo button.cur{border-color:#2e9e45;background:#eaf7ec}
+.qo button.new{border-color:var(--accent);background:#fff3d0}
+.qo button b{min-width:20px}
+.sv-note{color:var(--muted);text-align:center;padding:14px;font-size:14px}
+@media (max-width:900px){.ov{padding:0}.dlg{height:100%;border-radius:0}}
+.sv-act{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.sv-act #sinfo{flex:1;min-width:120px;color:var(--muted);font-size:14px}
+.sv-act .lb{font-weight:600;font-size:14px}
+.ck{width:40px;height:40px;border:1px solid #cfcfd5;background:#fff;border-radius:8px;font:700 16px "Montserrat",system-ui,sans-serif;cursor:pointer;color:var(--text)}
+.ck:hover{border-color:#1b6fcf}.ck.on{background:#1b6fcf;border-color:#1b6fcf;color:#fff}
+.sv-act .pb{padding:10px 18px}
+.qi.sel{border-color:#1b6fcf;background:#eef4fc}
+.qh input{margin-top:5px;width:18px;height:18px;flex:none;cursor:pointer}
+.qop{display:grid;gap:2px;margin-top:6px;font-size:14px;color:#555}
+.qop .cur{color:#1b7a2f;font-weight:600}
+.pw{position:fixed;inset:0;background:rgba(20,18,24,.55);z-index:120;display:flex;align-items:center;justify-content:center;padding:20px}
+.pw[hidden]{display:none}
+.pwb{background:#fff;border-radius:14px;width:min(380px,100%);padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.pwb h3{margin:0 0 6px;font-size:20px}.pwb p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.pwb input{width:100%;height:48px;border:1px solid var(--line);border-radius:8px;background:var(--field);font:400 16px "Montserrat",system-ui,sans-serif;padding:0 14px;color:var(--text)}
+.pwb input:focus-visible{outline:3px solid #1b6fcf;outline-offset:1px}
+.pwb input.bad{border-color:#d33;background:#fdeaea}
+.pwe{color:#c22;font-size:14px;min-height:20px;margin:6px 0 10px}
+.pwr{display:flex;gap:10px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<header class="nav"><div class="nav-in">
+ <a class="brand" href="#" aria-label="Trang chủ"><img src="data:image/png;base64,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" alt="Sun Group"></a>
+ <nav class="menu"><a href="#">Trang chủ</a><a href="#">Chương trình đào tạo</a><a href="#">Lớp học</a><a href="#">Thư viện</a><a href="#">Tin tức</a></nav>
+ <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Thông báo"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+ <div class="sp"></div>
+ <div class="user"><div class="ava" id="ava"></div><span class="uname" id="uname"></span>
+ <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+ <div class="crumb">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+  <a href="#">Trang chủ</a><span>›</span><span>Bảng tổng hợp cá nhân</span>
+ </div>
+ <h1>Bảng tổng hợp cá nhân</h1>
+</div></section>
+
+<main class="wrap">
+ <nav class="tabs" aria-label="Mục">
+  <a href="#">Lớp học</a><a href="#">Lịch học</a><a href="#" class="on" aria-current="page">Kỳ thi</a><a href="#">Kỳ thi thẩm định tham gia</a><a href="#">Đề xuất nhu cầu đào tạo</a><a href="#">Lịch học dự kiến</a><a href="#">Chứng chỉ</a><a href="#" id="tk">Khảo sát</a>
+ </nav>
+
+ <div class="filters">
+  <div class="sel w1"><select id="fy" aria-label="Năm học"><option value="">Năm học</option></select></div>
+  <div class="sel w2"><select id="fs" aria-label="Trạng thái"><option value="">Tất cả</option><option>Đang diễn ra</option><option>Sắp diễn ra</option><option>Đã kết thúc</option></select></div>
+  <div class="search"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" type="search" placeholder="Tìm kiếm kỳ thi" aria-label="Tìm kiếm kỳ thi"></div>
+  <div class="sort"><span>Sắp xếp theo</span><div class="sel"><select id="so" aria-label="Sắp xếp theo"><option value="new">Mới nhất</option><option value="old">Cũ nhất</option><option value="az">Tên A-Z</option></select></div></div>
+ </div>
+
+ <div class="msg" id="msg" role="status"><span id="mt"></span><button id="pk" type="button">Chọn file TONGHOP.xlsx</button><input id="fi" type="file" accept=".xlsx,.xls,.csv" hidden></div>
+
+ <div class="tw"><table>
+  <colgroup><col style="width:5%"><col style="width:19%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:15%"><col style="width:10%"></colgroup>
+  <thead><tr><th>STT</th><th>Tên ca thi</th><th>Tên đợt thi</th><th>Ngày bắt đầu</th><th>Ngày kết thúc</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+  <tbody id="tb"></tbody>
+ </table></div>
+ <div class="foot"><div class="count" id="ct"></div><div class="pager" id="pg"></div></div>
+</main>
+
+<script>
+/* ====== CẤU HÌNH ====== */
+const CONFIG = {
+ file: "TONGHOP.xlsx",          // file dữ liệu đặt cùng thư mục với trang này
+ pageSize: 10,
+ user: "GĐ",
+ // Dùng khi file Excel không có cột tương ứng:
+ defaults: { dot:"—", start:"17:00 - 19/10/2026", end:"23:59 - 25/10/2026", status:"Đang diễn ra" }
+};
+/* ====== HẾT CẤU HÌNH ====== */
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>String(s==null?"":s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/\s+/g," ").trim();
+let ALL=[], page=1;
+$("#uname").textContent=CONFIG.user; $("#ava").textContent=CONFIG.user.slice(0,2);
+
+function linkOf(f){
+ f=String(f||"").trim().replace(/\\/g,"/"); if(!f) return "";
+ if(/^[a-z][a-z0-9+.-]*:/i.test(f)||f.startsWith("/")) return f;
+ return f.split("/").map(encodeURIComponent).join("/");
+}
+function msg(t,err,pick){ $("#mt").textContent=t; $("#msg").className="msg show"+(err?" err":""); $("#pk").style.display=pick?"":"none"; }
+
+function ingest(buf){
+ const wb=XLSX.read(buf,{type:"array"}); let rows=[],hi=-1;
+ for(const n of wb.SheetNames){ rows=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""}); hi=rows.findIndex(r=>r.some(c=>norm(c)==="ten ca thi")); if(hi>=0) break; }
+ if(hi<0) throw new Error("Không thấy cột “Tên ca thi” trong dòng tiêu đề.");
+ const head=rows[hi].map(norm), ix=k=>{const e=head.indexOf(k);return e>=0?e:head.findIndex(h=>h.includes(k));}, I={name:ix("ten ca thi"),file:ix("file thi"),dot:Math.max(ix("ten dot thi"),ix("dot thi")),start:ix("ngay bat dau"),end:ix("ngay ket thuc"),status:ix("trang thai")};
+ const get=(r,k,d)=>(I[k]>=0&&String(r[I[k]]).trim())?String(r[I[k]]).trim():d;
+ ALL=rows.slice(hi+1).filter(r=>String(r[I.name]||"").trim()).map(r=>({
+  name:get(r,"name",""), file:get(r,"file",""), dot:get(r,"dot",CONFIG.defaults.dot), start:get(r,"start",CONFIG.defaults.start), end:get(r,"end",CONFIG.defaults.end), status:get(r,"status",CONFIG.defaults.status)
+ }));
+ const ys=[...new Set(ALL.map(x=>(x.start.match(/(?:19|20)\d\d/)||[])[0]).filter(Boolean))].sort().reverse();
+ $("#fy").innerHTML='<option value="">Năm học</option>'+ys.map(y=>`<option>${y}</option>`).join("");
+ const miss=[]; if(I.dot<0) miss.push("“Tên đợt thi”"); if(I.file<0) miss.push("“File thi”");
+ if(miss.length) msg("File Excel chưa có cột "+miss.join(" và ")+(I.file<0?", nên chưa tạo được liên kết.":". Cột Tên đợt thi sẽ hiển thị “—”.")+" Các cột đang có trong file: "+rows[hi].map(c=>String(c).trim()).filter(Boolean).join(", ")+".",true,false); else $("#msg").className="msg";
+ page=1; render();
+}
+async function load(){
+ if(typeof XLSX==="undefined"){ msg("Không tải được thư viện đọc Excel (cần Internet). Hãy kiểm tra kết nối rồi tải lại trang.",true,false); render(); return; }
+ try{ const r=await fetch(CONFIG.file,{cache:"no-store"}); if(!r.ok) throw 0; ingest(await r.arrayBuffer()); }
+ catch(e){ msg("Chưa tự đọc được "+CONFIG.file+" (trình duyệt chặn khi mở trực tiếp từ ổ đĩa). Hãy chọn file thủ công, hoặc mở trang qua máy chủ cục bộ.",false,true); render(); }
+}
+async function pick(file){
+ try{ ingest(await file.arrayBuffer()); }catch(e){ msg("Không đọc được file: "+e.message,true,true); }
+}
+$("#pk").onclick=()=>$("#fi").click();
+$("#fi").onchange=e=>{ if(e.target.files[0]) pick(e.target.files[0]); };
+addEventListener("dragover",e=>e.preventDefault());
+addEventListener("drop",e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f) pick(f); });
+
+function view(){
+ const q=norm($("#q").value), y=$("#fy").value, s=norm($("#fs").value), so=$("#so").value;
+ let L=ALL.filter(x=>(!q||norm(x.name).includes(q))&&(!y||x.start.includes(y))&&(!s||norm(x.status)===s));
+ if(so==="old") L=[...L].reverse(); else if(so==="az") L=[...L].sort((a,b)=>a.name.localeCompare(b.name,"vi"));
+ return L;
+}
+function render(){
+ const L=view(), P=Math.max(1,Math.ceil(L.length/CONFIG.pageSize)); page=Math.min(page,P);
+ const from=(page-1)*CONFIG.pageSize, cut=L.slice(from,from+CONFIG.pageSize);
+ $("#tb").innerHTML=cut.length?cut.map((x,i)=>{
+  const h=linkOf(x.file), nm=h?`<a href="${esc(h)}">${esc(x.name)}</a>`:esc(x.name);
+  const bt=h?`<a class="btn" href="${esc(h)}">Chi tiết</a>`:`<span class="btn off" aria-disabled="true">Chi tiết</span>`;
+  return `<tr><td>${from+i+1}</td><td class="nm">${nm}</td><td>${esc(x.dot)}</td><td>${esc(x.start)}</td><td>${esc(x.end)}</td><td><span class="pill">${esc(x.status)}</span></td><td class="ac">${bt}</td></tr>`;
+ }).join(""):`<tr><td colspan="7" class="empty">${ALL.length?"Không có kết quả phù hợp.":"Chưa có dữ liệu."}</td></tr>`;
+ $("#ct").textContent="Tổng số bài thi: "+L.length;
+ let b=`<button data-p="${page-1}" ${page<=1?"disabled":""} aria-label="Trang trước">‹</button>`;
+ for(let p=1;p<=P;p++) b+=`<button data-p="${p}" class="${p===page?"on":""}" ${p===page?'aria-current="page"':""}>${p}</button>`;
+ b+=`<button data-p="${page+1}" ${page>=P?"disabled":""} aria-label="Trang sau">›</button><button data-p="${P}" ${page>=P?"disabled":""} aria-label="Trang cuối">»</button>`;
+ $("#pg").innerHTML=b;
+}
+$("#pg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b&&!b.disabled){ page=+b.dataset.p; render(); } });
+["#q","#fy","#fs","#so"].forEach(s=>$(s).addEventListener(s==="#q"?"input":"change",()=>{ page=1; render(); }));
+load();
+</script>
+<div class="ov" id="sv" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="svt">
+  <div class="dh"><button id="sb" class="ib" type="button" aria-label="Quay lại" hidden>←</button><h2 id="svt">Khảo sát</h2><button id="sx" class="ib" type="button" aria-label="Đóng">✕</button></div>
+  <div class="db" id="sbody"></div>
+  <div class="df" id="sfoot" hidden><span id="sinfo"></span><button id="ssave" class="pb" type="button" disabled>Lưu thay đổi</button></div>
+ </div>
+</div>
+<div class="pw" id="pw" hidden><form class="pwb" id="pwf" autocomplete="off"><h3>Khảo sát</h3><p>Nhập mật khẩu để truy cập chức năng này.</p><input id="pwi" type="password" placeholder="Mật khẩu" aria-label="Mật khẩu" autocomplete="off"><div class="pwe" id="pwe" role="alert"></div><div class="pwr"><button type="button" class="sb2" id="pwc">Hủy</button><button type="submit" class="pb">Xác nhận</button></div></form></div>
+<input id="sdir" type="file" webkitdirectory multiple hidden>
+<script>
+/* ====== KHẢO SÁT: chỉnh đáp án trong file Excel ====== */
+(function(){
+const S={dir:null,fileMap:null,files:[],folder:"",name:"",wb:null,ws:null,rows:[],hi:0,off:{r:0,c:0},head:[],m:{q:-1,c:-1,g:-1,o:[]},qs:[],fmt:"letter",sel:new Set(),nk:-1,vis:[],filter:""};
+const sv=$("#sv"),bd=$("#sbody"),ft=$("#sfoot");
+const col=i=>XLSX.utils.encode_col(S.off.c+i);
+
+function openDlg(){ sv.hidden=false; document.body.style.overflow="hidden"; S.name?viewQ():viewFiles(); }
+function closeDlg(){ S.sel.clear(); S.name=""; sv.hidden=true; document.body.style.overflow=""; }
+function back(){ S.sel.clear(); S.name=""; viewFiles(); }
+
+/* ---- Bước 1: chọn thư mục + file ---- */
+function viewFiles(){
+ $("#svt").textContent="Khảo sát"; $("#sb").hidden=true; ft.hidden=true;
+ if(!S.dir&&!S.fileMap){
+  bd.innerHTML='<div class="sv-intro"><p>Chọn thư mục chứa các file Excel câu hỏi (thư mục chứa trang này).</p><button class="pb" id="spd" type="button">Chọn thư mục</button></div>';
+  $("#spd").onclick=pickDir; return;
+ }
+ bd.innerHTML='<div class="sv-bar"><b>Thư mục: '+esc(S.folder)+'</b><button class="sb2" id="spd" type="button">Chọn thư mục khác</button></div>'+
+  (S.files.length?'<div class="fl">'+S.files.map((n,i)=>'<button type="button" data-f="'+i+'"><span>📄</span><span>'+esc(n)+'</span></button>').join("")+'</div>':'<div class="sv-note">Không có file .xlsx nào trong thư mục này.</div>');
+ $("#spd").onclick=pickDir;
+}
+async function pickDir(){
+ if(window.showDirectoryPicker){
+  try{
+   const d=await showDirectoryPicker({mode:"readwrite"}); const fl=[];
+   for await(const [n,h] of d.entries()) if(h.kind==="file"&&/\.xlsx$/i.test(n)&&!n.startsWith("~$")) fl.push(n);
+   S.dir=d; S.fileMap=null; S.folder=d.name; S.files=fl.sort((a,b)=>a.localeCompare(b,"vi")); viewFiles(); return;
+  }catch(e){ if(e&&e.name==="AbortError") return; }
+ }
+ $("#sdir").click();
+}
+$("#sdir").onchange=e=>{
+ const fs=[...e.target.files].filter(f=>/\.xlsx$/i.test(f.name)&&!f.name.startsWith("~$")&&f.webkitRelativePath.split("/").length===2);
+ S.dir=null; S.fileMap=new Map(fs.map(f=>[f.name,f])); S.files=[...S.fileMap.keys()].sort((a,b)=>a.localeCompare(b,"vi"));
+ S.folder=fs.length?fs[0].webkitRelativePath.split("/")[0]:"(thư mục đã chọn)"; e.target.value=""; viewFiles();
+};
+bd.addEventListener("click",async e=>{
+ const b=e.target.closest("[data-f]"); if(!b) return; const n=S.files[+b.dataset.f];
+ try{
+  const f=S.dir?await (await S.dir.getFileHandle(n)).getFile():S.fileMap.get(n);
+  S.wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellStyles:true});
+  S.name=n; S.sel.clear(); S.nk=-1; S.filter=""; detect(); viewQ();
+ }catch(err){ alert("Không đọc được file: "+(err.message||err)); }
+});
+
+/* ---- Nhận diện cột ---- */
+function detect(){
+ let found=false;
+ for(const sn of S.wb.SheetNames){
+  const ws=S.wb.Sheets[sn]; if(!ws||!ws["!ref"]) continue;
+  const rg=XLSX.utils.decode_range(ws["!ref"]);
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:""});
+  const hi=rows.findIndex(r=>r.some(c=>/^cau hoi\b/.test(norm(c))||norm(c)==="noi dung cau hoi"));
+  if(hi>=0||!S.ws){ S.ws=ws; S.rows=rows; S.off={r:rg.s.r,c:rg.s.c}; S.hi=Math.max(hi,0); S.sn=sn; }
+  if(hi>=0){ found=true; break; }
+ }
+ const w=Math.max(0,...S.rows.slice(0,S.hi+1).map(r=>r.length)); S.head=Array.from({length:w},(_,i)=>String(S.rows[S.hi][i]??"").trim());
+ const h=S.head.map(norm), optRe=/^((dap an|phuong an|lua chon|dap an lua chon) ?)?[a-f]$/;
+ const m={q:h.findIndex(x=>x==="cau hoi"||/^cau hoi\b/.test(x)||x==="noi dung cau hoi"),c:-1,g:h.findIndex(x=>x==="loai kien thuc"||x.includes("loai kien thuc")),o:[]};
+ h.forEach((x,i)=>{ if(optRe.test(x)) m.o.push(i); });
+ m.c=h.findIndex((x,i)=>!m.o.includes(i)&&(x==="dap an"||x.includes("dap an dung")||x.includes("dap an chinh xac")||x==="dung"||x==="key"));
+ if(m.c<0) m.c=h.findIndex((x,i)=>!m.o.includes(i)&&x.includes("dap an"));
+ S.m=m; buildQs();
+}
+function resolve(raw,opts){
+ const v=String(raw).trim(); if(!v) return {i:-1};
+ if(/^[A-Za-z]$/.test(v)) return {i:v.toUpperCase().charCodeAt(0)-65,f:"letter",lc:v===v.toLowerCase()};
+ if(/^\d+$/.test(v)&&+v>=1&&+v<=S.m.o.length) return {i:+v-1,f:"num"};
+ const nv=norm(v), x=opts.find(o=>norm(o.t)===nv); return x?{i:x.k,f:"text"}:{i:-1};
+}
+function buildQs(){
+ const {q,c,g,o}=S.m; S.qs=[]; S.sel.clear(); let grp="",n=0,fm=null;
+ if(q>=0&&c>=0) for(let i=S.hi+1;i<S.rows.length;i++){
+  const r=S.rows[i], t=String(r[q]??"").trim(); if(!t) continue;
+  const opts=o.map((cc,k)=>({k,t:String(r[cc]??"").trim()})).filter(x=>x.t);
+  if(!opts.length){ if(t!==grp){ grp=t; n=0; S.qs.push({group:t}); } continue; }
+  if(g>=0){ const gv=String(r[g]??"").trim(); if(gv&&gv!==grp){ grp=gv; n=0; S.qs.push({group:gv}); } }
+  const raw=String(r[c]??"").trim(), rs=resolve(raw,opts); if(rs.f&&!fm) fm=rs.f;
+  S.qs.push({n:++n,row:i,text:t,opts,raw,cur:rs.i,f:rs.f,lc:rs.lc});
+ }
+ const hd=o.map(cc=>norm(S.head[cc])); S.fmt=fm||(hd.length&&hd.every(x=>/(^|\s)[a-f]$/.test(x))?"letter":"text");
+}
+
+/* ---- Bước 2: danh sách câu hỏi ---- */
+function colOpts(sel,allowNone){ return (allowNone?'<option value="-1">(không có)</option>':'<option value="-1">— chọn —</option>')+S.head.map((x,i)=>'<option value="'+i+'"'+(i===sel?" selected":"")+'>'+col(i)+": "+esc(x||"(trống)")+'</option>').join(""); }
+const L_=k=>String.fromCharCode(65+k);
+function viewQ(){
+ $("#svt").textContent=S.name; $("#sb").hidden=false; ft.hidden=true;
+ const bad=S.m.q<0||S.m.c<0||S.m.o.length<2;
+ bd.innerHTML='<div class="sv-s"><input id="sq" type="search" placeholder="Tìm câu hỏi (nội dung, số câu)…" aria-label="Tìm câu hỏi" value="'+esc(S.filter)+'">'+
+  '<div class="sv-act"><button class="sb2" id="sall" type="button">Chọn tất cả đang hiển thị</button><span id="sinfo"></span><span class="lb">Đáp án mới:</span>'+
+  S.m.o.map((_,k)=>'<button type="button" class="ck" data-nk="'+k+'">'+L_(k)+'</button>').join("")+
+  '<button class="pb" id="sup" type="button">Cập nhật đáp án</button></div></div>'+
+  '<details class="mp"'+(bad?" open":"")+'><summary>Cột dữ liệu'+(bad?" — cần chọn cột câu hỏi, đáp án đúng và các phương án":"")+'</summary>'+
+  '<div class="g"><label>Câu hỏi <select id="mq">'+colOpts(S.m.q)+'</select></label><label>Đáp án đúng <select id="mc">'+colOpts(S.m.c)+'</select></label><label>Loại kiến thức <select id="mg">'+colOpts(S.m.g,true)+'</select></label></div>'+
+  '<div class="g">Các cột phương án: '+S.head.map((x,i)=>'<label><input type="checkbox" data-o="'+i+'"'+(S.m.o.includes(i)?" checked":"")+'>'+col(i)+": "+esc(x||"(trống)")+'</label>').join("")+'</div></details>'+
+  '<div id="sl"></div>';
+ renderList(); updBar();
+}
+function updBar(msg){
+ const el=$("#sinfo"); if(!el) return;
+ el.textContent=msg||("Đã chọn "+S.sel.size+" câu");
+ bd.querySelectorAll(".ck").forEach(b=>b.classList.toggle("on",+b.dataset.nk===S.nk));
+ $("#sup").disabled=!(S.sel.size&&S.nk>=0);
+}
+function renderList(){
+ const f=norm(S.filter), L=$("#sl"); if(!L) return; S.vis=[];
+ if(S.m.q<0||S.m.c<0||S.m.o.length<2){ L.innerHTML='<div class="sv-note">Hãy chọn đúng các cột ở mục “Cột dữ liệu” phía trên.</div>'; return; }
+ let html="",pendG="";
+ S.qs.forEach((q,i)=>{
+  if(q.group){ pendG='<div class="gh">'+esc(q.group)+'</div>'; return; }
+  if(f&&!(norm(q.text).includes(f)||String(q.n)===S.filter.trim()||q.opts.some(o=>norm(o.t).includes(f)))) return;
+  S.vis.push(i); if(pendG){ html+=pendG; pendG=""; }
+  const on=S.sel.has(i);
+  html+='<div class="qi'+(on?" sel":"")+'"><label class="qh"><input type="checkbox" data-q="'+i+'"'+(on?" checked":"")+'><span class="qn">Câu '+q.n+'</span><span class="qt">'+esc(q.text)+
+   '<span class="qop">'+q.opts.map(o=>'<span class="'+(o.k===q.cur?"cur":"")+'"><b>'+L_(o.k)+'.</b> '+esc(o.t)+'</span>').join("")+'</span></span>'+
+   '<span class="qa'+(q.cur<0?" no":"")+'">ĐA: '+(q.cur<0?"chưa có":L_(q.cur))+'</span></label></div>';
+ });
+ L.innerHTML=html||'<div class="sv-note">Không tìm thấy câu hỏi phù hợp.</div>';
+}
+bd.addEventListener("input",e=>{ if(e.target.id==="sq"){ S.filter=e.target.value; renderList(); } });
+bd.addEventListener("change",e=>{
+ const t=e.target; let ch=false;
+ if(t.dataset&&t.dataset.q!==undefined){ const i=+t.dataset.q; t.checked?S.sel.add(i):S.sel.delete(i); t.closest(".qi").classList.toggle("sel",t.checked); updBar(); return; }
+ if(t.id==="mq"){S.m.q=+t.value;ch=true} else if(t.id==="mc"){S.m.c=+t.value;ch=true} else if(t.id==="mg"){S.m.g=+t.value;ch=true}
+ else if(t.dataset&&t.dataset.o!==undefined){ const i=+t.dataset.o; S.m.o=S.m.o.filter(x=>x!==i); if(t.checked) S.m.o.push(i); S.m.o.sort((a,b)=>a-b); ch=true; }
+ if(ch){ buildQs(); viewQ(); }
+});
+bd.addEventListener("click",e=>{
+ const c=e.target.closest(".ck"); if(c){ S.nk=S.nk===+c.dataset.nk?-1:+c.dataset.nk; updBar(); return; }
+ if(e.target.closest("#sall")){ const all=S.vis.length&&S.vis.every(i=>S.sel.has(i)); S.vis.forEach(i=>all?S.sel.delete(i):S.sel.add(i)); renderList(); updBar(); return; }
+ if(e.target.closest("#sup")) update();
+});
+
+/* ---- Cập nhật đáp án và lưu vào file ---- */
+async function update(){
+ if(!S.sel.size||S.nk<0) return; const k=S.nk, n=S.sel.size;
+ if(!confirm("Đổi đáp án thành "+L_(k)+" cho "+n+" câu đã chọn và lưu vào file "+S.name+"?")) return;
+ const btn=$("#sup"); btn.disabled=true; updBar("Đang lưu…");
+ try{
+  const ws=S.ws, rg=XLSX.utils.decode_range(ws["!ref"]), upd=[]; let skip=0;
+  for(const i of S.sel){
+   const q=S.qs[i], x=q.opts.find(o=>o.k===k); if(!x){ skip++; continue; }
+   const f=q.f||S.fmt, val=f==="num"?k+1:f==="text"?x.t:String.fromCharCode((q.lc?97:65)+k);
+   const r=S.off.r+q.row, c=S.off.c+S.m.c, a=XLSX.utils.encode_cell({r,c}), cell=ws[a]||{};
+   if(typeof val==="number"){cell.t="n";cell.v=val}else{cell.t="s";cell.v=val}
+   delete cell.w; delete cell.f; delete cell.h; delete cell.r; ws[a]=cell;
+   if(r>rg.e.r) rg.e.r=r; if(c>rg.e.c) rg.e.c=c; upd.push([q,k,val]);
+  }
+  if(!upd.length){ updBar(); alert("Các câu đã chọn không có phương án "+L_(k)+"."); return; }
+  ws["!ref"]=XLSX.utils.encode_range(rg);
+  const out=XLSX.write(S.wb,{type:"array",bookType:"xlsx",cellStyles:true});
+  const blob=new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  let msg;
+  if(S.dir){ const w=await (await S.dir.getFileHandle(S.name)).createWritable(); await w.write(blob); await w.close(); msg="Đã cập nhật "+upd.length+" câu và lưu vào file"; }
+  else{ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=S.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); msg="Đã tải "+S.name+" về, hãy chép đè vào thư mục gốc"; }
+  if(skip) msg+=" ("+skip+" câu không có phương án "+L_(k)+" nên bỏ qua)";
+  upd.forEach(([q,kk,val])=>{ q.cur=kk; q.raw=String(val); }); S.sel.clear(); renderList(); updBar(msg);
+ }catch(err){ updBar("Lưu thất bại: "+(err.message||err)+" (file có đang mở trong Excel không?)"); }
+}
+$("#sb").onclick=back; $("#sx").onclick=closeDlg;
+sv.addEventListener("mousedown",e=>{ if(e.target===sv) closeDlg(); });
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&!sv.hidden) closeDlg(); });
+let unlocked=false; const PW="Z3Ny";
+const pw=$("#pw"),pwi=$("#pwi"),pwe=$("#pwe");
+function askPw(){ pwi.value=""; pwe.textContent=""; pwi.classList.remove("bad"); pw.hidden=false; setTimeout(()=>pwi.focus(),30); }
+$("#pwf").onsubmit=e=>{ e.preventDefault(); if(pwi.value===atob(PW)){ unlocked=true; pw.hidden=true; openDlg(); } else { pwe.textContent="Mật khẩu không đúng."; pwi.classList.add("bad"); pwi.select(); } };
+$("#pwc").onclick=()=>{ pw.hidden=true; };
+pw.addEventListener("mousedown",e=>{ if(e.target===pw) pw.hidden=true; });
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&!pw.hidden) pw.hidden=true; });
+document.addEventListener("click",e=>{ const a=e.target.closest("#tk"); if(a){ e.preventDefault(); unlocked?openDlg():askPw(); } });
+addEventListener("drop",e=>{ if(!sv.hidden) e.stopImmediatePropagation(); },true);
+})();
+</script>
+</body>
+</html>
