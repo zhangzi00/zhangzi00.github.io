@@ -12,7 +12,7 @@
 :root{--nav:#262329;--text:#222;--muted:#8a8a90;--line:#e6e6ea;--head:#e4edf9;--accent:#f7b500;--pill:#fdecc8;--pillt:#e8710a;--field:#f6f6f8;color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:var(--text);font:400 16px/1.5 "Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav{background:var(--nav);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.nav{background:var(--nav);color:#fff;padding-top:env(safe-area-inset-top,0px);position:sticky;top:0;z-index:50}
 .nav-in{max-width:1420px;margin:0 auto;height:86px;display:flex;align-items:center;gap:36px;padding:0 20px}
 .brand img{display:block;height:auto;max-height:62px;width:auto}
 .menu{display:flex;gap:36px;margin-left:20px}
@@ -140,6 +140,8 @@ details.mp summary{cursor:pointer;font-weight:600}
 .ghf label{display:grid;gap:5px;font-weight:600;font-size:14px}
 .ghf input{height:44px;border:1px solid var(--line);border-radius:8px;background:var(--field);font:400 15px "Montserrat",system-ui,sans-serif;padding:0 12px;color:var(--text)}
 .ghf input:focus-visible{outline:3px solid #1b6fcf;outline-offset:1px}
+thead th{position:sticky;top:calc(86px + env(safe-area-inset-top,0px));z-index:3;box-shadow:0 1px 0 var(--line)}
+@media (min-width:1021px){.tw{overflow:visible}}
 </style>
 </head>
 <body>
