@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Quiz</title>
+<style>
+:root{--blue:#4b72be;--blue-d:#3d62a8;--lime:#7ab800;--coral:#de5b4a;--ink:#4a4a4a;--text:#111;--mute:#6f6f6f;--line:#e4e4e4;--opt:#f9f9f9;--ok:#2e9d5b;--okbg:#e9f6ee;--no:#d64545;--nobg:#fdecec}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Open Sans","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--text);background:#e4e4e4;font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.player{position:relative;overflow:hidden;max-width:640px;height:100%;height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:#fff}
+@media(min-width:700px){body{padding:24px 0}.player{height:calc(100vh - 48px);max-height:860px;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.12)}}
+
+header{flex:none;padding:calc(env(safe-area-inset-top,0px) + 12px) max(20px,env(safe-area-inset-right,0px)) 12px max(20px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.listbtn{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 18px 0 12px;border:0;border-radius:10px;background:#eceef2;color:#4a5a75;font:inherit;font-size:15px;cursor:pointer}
+.listbtn:hover{background:#e2e6ed}
+.listbtn svg{width:22px;height:22px;flex:none}
+.listbtn[hidden]{display:none}
+
+.body{flex:1;min-height:0;display:flex;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+.card{position:relative;flex:1;min-width:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
+main{position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:clamp(24px,9vw,54px) clamp(18px,8vw,54px)}
+.card.answered main{padding-bottom:220px}
+.fade{position:absolute;left:0;right:0;bottom:0;height:170px;background:linear-gradient(rgba(255,255,255,0),#f2f2f2);pointer-events:none;opacity:0;transition:opacity .2s}
+.card.answered .fade{opacity:1}
+.sheet{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(360px,calc(100% - 28px));background:#fff;border-radius:8px;box-shadow:0 2px 14px rgba(0,0,0,.2);overflow:hidden;z-index:2}
+.sheet[hidden]{display:none}
+.sheet .sh{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;padding:14px 22px;color:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:20px;text-align:left;cursor:pointer}
+.sheet.ok .sh{background:var(--lime)}
+.sheet.no .sh{background:var(--coral)}
+.sh svg{width:22px;height:22px;flex:none;transition:transform .15s}
+.sheet.min .sh svg{transform:rotate(180deg)}
+.sheet .sb{padding:20px 22px 24px;font-size:16px;line-height:1.5;color:#444}
+.sheet.min .sb{display:none}
+.sheet .sb p{margin:0}
+.sheet .sb p+p{margin-top:8px}
+.qtext{font-size:20px;line-height:1.55;font-weight:600;color:var(--ink);margin:0 0 28px;overflow-wrap:anywhere}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{position:relative;display:flex;align-items:center;gap:16px;padding:15px 18px;background:var(--opt);border:1px solid #f0f0f0;border-radius:6px;cursor:pointer;color:var(--text);font-size:18px;line-height:1.4;overflow-wrap:anywhere;transition:background .12s,border-color .12s,opacity .12s}
+.opt:hover{background:#f3f3f3}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.rd{width:24px;height:24px;border-radius:50%;border:1.5px solid #c4c4c4;background:#fff;flex:none;position:relative}
+.opt.sel{background:#dde7f7;border-color:#c9d8f1}
+.opt.sel .rd{border-color:#8a8a8a}
+.opt.sel .rd::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#8a8a8a}
+.locked .opt{cursor:default}
+.locked .opt:hover{background:var(--opt)}
+.locked .opt.sel:hover{background:#dde7f7}
+.opt.faded{opacity:.5}
+.opt.right .rd{border-color:var(--lime)}
+.mark{position:absolute;left:-38px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.mark svg{width:14px;height:14px}
+.mark.ok{background:var(--lime)}
+.mark.no{background:var(--coral)}
+.opt:focus-within{outline:3px solid rgba(75,114,190,.4);outline-offset:2px}
+
+footer{flex:none;display:flex;align-items:center;gap:16px;padding:14px max(20px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));border-top:1px solid var(--line);background:#fff;min-height:80px}
+.info{flex:1;min-width:0;display:flex;justify-content:space-between;gap:16px;font-size:15px;color:#555}
+.info span{white-space:nowrap}
+.btn{font:inherit;font-size:18px;font-weight:700;min-width:112px;min-height:48px;padding:10px 22px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer}
+.btn:hover{background:var(--blue-d)}
+.btn:disabled{cursor:not-allowed;background:#6f93e0}
+.btn svg{width:18px;height:18px;margin-left:8px;vertical-align:-3px}
+.btn.ghost{background:#eceef2;color:#3e5170}
+.btn.ghost:hover{background:#e2e6ed}
+.btn:focus-visible,.listbtn:focus-visible,nav .q:focus-visible{outline:3px solid rgba(68,114,223,.45);outline-offset:2px}
+@media(max-width:480px){.info{flex-direction:column;justify-content:center;gap:2px;font-size:13.5px}.btn{font-size:17px;min-width:104px}.qtext{font-size:19px}.opt{font-size:17px;padding:14px}.mark{left:auto;right:12px}.opt.hasmark{padding-right:52px}.result{gap:24px;justify-content:center}.stats{min-width:0;width:100%}.stats h2{font-size:22px}footer.two .btn{flex:1;min-width:0}}
+
+/* danh sách câu hỏi */
+nav{position:absolute;top:0;bottom:0;left:0;z-index:20;width:340px;max-width:88%;background:#fff;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:env(safe-area-inset-top,0px) 0 calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-100%);visibility:hidden;transition:transform .22s,visibility 0s .22s}
+.player.open nav{transform:none;visibility:visible;transition:transform .22s;box-shadow:4px 0 24px rgba(20,40,70,.28)}
+.scrim{position:absolute;inset:0;z-index:15;background:rgba(20,30,45,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.player.open .scrim{opacity:1;pointer-events:auto}
+nav .navhead{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:1}
+nav .navhead b{font-size:16px;color:var(--ink)}
+nav .navhead button{width:44px;height:44px;border:0;background:none;border-radius:8px;font-size:18px;color:var(--mute);cursor:pointer}
+nav .grp{padding:16px 20px 6px;font-size:13px;font-weight:600;color:var(--mute);line-height:1.3}
+nav .q{display:flex;align-items:center;gap:12px;width:100%;padding:11px 20px;border:0;background:none;font:inherit;font-size:14px;color:var(--ink);text-align:left;cursor:pointer;border-left:3px solid transparent}
+nav .q:hover{background:#f3f5f8}
+nav .q.cur{background:#eef3fd;border-left-color:var(--blue);font-weight:600}
+nav .qt{flex:1;min-width:0;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+nav .dot{width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;background:#fff;border:1.5px solid #b9c4d0;color:var(--mute)}
+nav .dot.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+nav .dot.no{background:var(--no);border-color:var(--no);color:#fff}
+nav .dot.on{border-color:var(--blue);color:var(--blue)}
+nav .note{padding:14px 20px 0;font-size:12.5px;color:var(--mute);line-height:1.45}
+
+.msg{max-width:560px;line-height:1.6;color:var(--ink)}
+.msg h2{margin:0 0 10px;font-size:22px}
+.msg code{background:#eef2f6;padding:2px 6px;border-radius:3px;font-size:14px}
+.msg.err h2{color:var(--no)}
+.msg input[type=file]{margin-top:14px;font:inherit}
+.result{display:flex;gap:40px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:170px;height:170px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--line) 0)}
+.ring>div{width:134px;height:134px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
+.ring strong{font-size:34px;line-height:1;color:var(--ink)}
+.ring span{display:block;font-size:13px;color:var(--mute);margin-top:4px}
+.stats{flex:1;min-width:220px}
+.stats h2{margin:0 0 16px;font-size:24px}
+.stats dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 24px;font-size:15px}
+.stats dt{color:var(--mute)}
+.stats dd{margin:0;font-weight:600;color:var(--ink)}
+.pass{--c:var(--ok)}.fail{--c:var(--no)}
+.pass h2{color:var(--ok)}.fail h2{color:var(--no)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="player" id="player">
+  <header><button class="listbtn" id="listbtn" hidden aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span id="listLabel">Question List</span></button></header>
+  <div class="body"><div class="card" id="card"><main id="main"></main><div class="fade"></div><div class="sheet" id="sheet" hidden></div></div></div>
+  <footer id="foot"></footer>
+  <div class="scrim" id="scrim"></div>
+  <nav id="nav" aria-label="Question List"></nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+
+const PASSING = 70;            // điểm đạt (%)
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d').toLowerCase().replace(/\s+/g,' ').trim();
+
+/* Tên file dữ liệu = tên file html (không tính đuôi) bỏ 5 ký tự cuối + ".xlsx" */
+function dataBase(){
+  const f = decodeURIComponent(location.pathname.split('/').pop() || '');
+  const n = f.replace(/\.[^.]+$/, '');
+  return n.length > 5 ? n.slice(0, -5) : n;
+}
+const BASE = dataBase();
+
+let Q = [], sel = [], done = [], cur = 0, showResult = false, review = false, NOTE = '';
+
+/* ---------- đọc dữ liệu từ xlsx ---------- */
+function parseSheet(aoa){
+  const hi = aoa.findIndex(r => r.filter(c => String(c ?? '').trim() !== '').length >= 3);
+  if(hi < 0) return {error:'File không có dữ liệu.'};
+  const rawHead = aoa[hi], head = rawHead.map(norm);
+  const find = f => head.findIndex(f);
+  const cType = find(h => h.includes('loai kien thuc'));
+  const cQ    = find(h => /cau hoi|noi dung|question/.test(h));
+  const cExp  = find(h => h.includes('giai thich'));
+  const cAns  = find(h => /^(dap an dung|dap an|dap an chinh xac|key|correct)$/.test(h));
+  const optCols = [];
+  head.forEach((h,i) => {
+    let m = h.match(/^(?:dap an|phuong an|lua chon)?\s*([a-f])$/);
+    if(m) optCols[m[1].charCodeAt(0) - 97] = i;
+    else if((m = h.match(/^(?:dap an|phuong an|lua chon)\s*([1-6])$/))) optCols[+m[1] - 1] = i;
+  });
+  const hasOpts = optCols.filter(x => x !== undefined).length >= 2;
+  if(cQ < 0 || !hasOpts || cAns < 0){
+    return {error:'Không nhận ra các cột trong file. Cần có các cột: <b>Câu hỏi</b>, <b>A, B, C, D</b> (hoặc Đáp án A…D) và <b>Đáp án</b> (đáp án đúng). Các cột tìm thấy: ' +
+      rawHead.filter(c => String(c).trim()).map(esc).join(', ')};
+  }
+  const out = []; let skipped = 0, total = 0;
+  for(let r = hi + 1; r < aoa.length; r++){
+    const row = aoa[r], text = String(row[cQ] ?? '').trim();
+    if(!text) continue;
+    total++;
+    const opts = [];
+    optCols.forEach((ci, k) => { if(ci !== undefined){ const t = String(row[ci] ?? '').trim(); if(t) opts.push({k, t}); }});
+    if(opts.length !== 4){ skipped++; continue; }                 // chỉ lấy loại có 4 đáp án
+    const raw = String(row[cAns] ?? '').trim();
+    let idx = -1;
+    const up = raw.toUpperCase();
+    if(/^[A-F]$/.test(up)) idx = opts.findIndex(o => o.k === up.charCodeAt(0) - 65);
+    else if(/^[1-6]$/.test(up)) idx = opts.findIndex(o => o.k === +up - 1);
+    else if(raw) idx = opts.findIndex(o => norm(o.t) === norm(raw));
+    if(idx < 0){ skipped++; continue; }                            // nhiều đáp án / không xác định → bỏ
+    out.push({
+      group: cType >= 0 ? String(row[cType] ?? '').trim() : '',
+      text, options: opts.map(o => o.t), answer: idx,
+      exp: cExp >= 0 ? String(row[cExp] ?? '').trim() : ''
+    });
+  }
+  if(!out.length) return {error:'Không có câu nào thuộc loại 4 đáp án, chọn 1 đáp án đúng trong file.'};
+  /* sắp xếp tăng dần theo Loại kiến thức (giữ nguyên thứ tự trong file ở mỗi nhóm) */
+  out.sort((a,b) => a.group.localeCompare(b.group, 'vi', {numeric:true}));
+  return {questions: out, skipped, total};
+}
+
+function load(buf){
+  try{
+    if(typeof XLSX === 'undefined') throw new Error('Không tải được thư viện đọc Excel. Hãy kiểm tra kết nối internet rồi mở lại trang.');
+    const wb = XLSX.read(buf, {type:'array'});
+    const aoa = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
+    const res = parseSheet(aoa);
+    if(res.error) return msg('Không đọc được câu hỏi', res.error, true);
+    Q = res.questions; sel = Q.map(() => null); done = Q.map(() => false);
+    cur = 0; showResult = false; review = false;
+    NOTE = `Đã nạp ${Q.length} câu (loại 4 đáp án, chọn 1).` + (res.skipped ? ` Bỏ qua ${res.skipped} câu không đúng loại.` : '');
+    render();
+  }catch(e){ msg('Không đọc được câu hỏi', esc(e.message), true); }
+}
+
+async function init(){
+  document.title = BASE || 'Quiz';
+  msg('Đang tải câu hỏi…', `Đọc dữ liệu từ <code>${esc(BASE)}.xlsx</code>`);
+  try{
+    const res = await fetch(encodeURI(BASE + '.xlsx'), {cache:'no-store'});
+    if(!res.ok) throw new Error('not found');
+    load(await res.arrayBuffer());
+  }catch(e){ showPicker(); }
+}
+
+
+/* ---------- nhãn giao diện: đổi LANG = 'vi' để dùng tiếng Việt ---------- */
+const LANG = 'en';
+const TXT = {
+  en:{list:'Question List',score:'Your Score',question:'Question',of:'of',submit:'Submit',next:'Continue',results:'View Results',backResults:'Back to Results',
+      correct:'Correct',wrong:'Incorrect',okMsg:'Well done!',noMsg:'Chúc bạn may mắn lần sau',answer:'Correct answer: ',close:'Close',yourScore:'Your score',passing:'Passing score',
+      correctCount:'Correct answers',status:'Result',passed:'Passed',failed:'Failed',okTitle:'Congratulations, you passed!',noTitle:'You did not pass this time',
+      review:'Review Quiz',retake:'Retake Quiz',pts:'Points'},
+  vi:{list:'Danh sách câu hỏi',score:'Điểm của bạn',question:'Câu hỏi',of:'/',submit:'Trả lời',next:'Tiếp tục',results:'Xem kết quả',backResults:'Về trang kết quả',
+      correct:'Chính xác',wrong:'Chưa chính xác',okMsg:'Làm tốt lắm!',noMsg:'Chúc bạn may mắn lần sau',answer:'Đáp án đúng: ',close:'Đóng',yourScore:'Điểm của bạn',passing:'Điểm đạt',
+      correctCount:'Số câu đúng',status:'Kết quả',passed:'Đạt',failed:'Không đạt',okTitle:'Chúc mừng, bạn đã đạt!',noTitle:'Chưa đạt, hãy thử lại nhé',
+      review:'Xem lại bài làm',retake:'Làm lại',pts:'Điểm'}
+}[LANG];
+const POINTS = 10;             // điểm mỗi câu (ví dụ 87 câu = 870 điểm)
+
+/* ---------- giao diện ---------- */
+const player = $('player');
+const isRight = i => sel[i] === Q[i].answer;
+const correctCount = () => Q.reduce((s,_,i) => s + (done[i] && isRight(i) ? 1 : 0), 0);
+
+function setNav(open){
+  player.classList.toggle('open', open);
+  $('listbtn').setAttribute('aria-expanded', open);
+  if(open){ const c = $('nav').querySelector('.q.cur'); if(c) c.scrollIntoView({block:'center'}); }
+}
+$('listbtn').onclick = () => setNav(!player.classList.contains('open'));
+$('scrim').onclick = () => setNav(false);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') setNav(false); });
+$('listLabel').textContent = TXT.list;
+
+function msg(title, html, err){
+  setNav(false); $('listbtn').hidden = true; $('card').classList.remove('answered'); $('sheet').hidden = true;
+  $('nav').innerHTML = ''; $('foot').innerHTML = '';
+  $('main').innerHTML = `<div class="msg ${err?'err':''}"><h2>${title}</h2><p>${html}</p></div>`;
+}
+function showPicker(){
+  $('listbtn').hidden = true; $('card').classList.remove('answered'); $('sheet').hidden = true; $('nav').innerHTML = ''; $('foot').innerHTML = '';
+  $('main').innerHTML = `<div class="msg"><h2>Chọn file câu hỏi</h2>
+    <p>Trình duyệt không cho trang tự mở file <code>${esc(BASE)}.xlsx</code> khi chạy trực tiếp từ máy (hoặc chưa thấy file cùng thư mục). Hãy chọn file đó thủ công, hoặc mở trang qua máy chủ web để trang tự nạp.</p>
+    <input type="file" id="pick" accept=".xlsx,.xls"></div>`;
+  $('pick').onchange = async e => { const f = e.target.files[0]; if(f) load(await f.arrayBuffer()); };
+}
+
+function renderNav(){
+  let html = `<div class="navhead"><b>${esc(TXT.list)}</b><button id="navClose" aria-label="${esc(TXT.close)}">✕</button></div>`, last = null;
+  Q.forEach((q,i) => {
+    if(q.group && q.group !== last){ html += `<div class="grp">${esc(q.group)}</div>`; last = q.group; }
+    let cls = '', mark = i + 1;
+    if(done[i]){ cls = isRight(i) ? 'ok' : 'no'; mark = isRight(i) ? '✓' : '✕'; }
+    else if(i === cur && !showResult) cls = 'on';
+    html += `<button class="q ${i===cur&&!showResult?'cur':''}" data-i="${i}"><span class="dot ${cls}">${mark}</span><span class="qt">${esc(q.text)}</span></button>`;
+  });
+  html += `<div class="note">${esc(NOTE)}</div>`;
+  $('nav').innerHTML = html;
+  $('nav').querySelectorAll('.q').forEach(b => b.onclick = () => { showResult = false; cur = +b.dataset.i; setNav(false); render(); $('main').scrollTop = 0; });
+  $('navClose').onclick = () => setNav(false);
+}
+
+const SVG = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const ICON_OK = SVG('M5 12.5l4.5 4.5L19 7.5'), ICON_NO = SVG('M6 6l12 12M18 6L6 18'), ICON_CHEV = SVG('M6 9l6 6 6-6'), ICON_NEXT = SVG('M9 6l6 6-6 6');
+
+function renderQuestion(){
+  const q = Q[cur], locked = done[cur], ok = locked && isRight(cur);
+  $('card').classList.toggle('answered', locked);
+  let html = `<h2 class="qtext">${esc(q.text)}</h2><div class="opts ${locked?'locked':''}">`;
+  q.options.forEach((o,i) => {
+    const chosen = sel[cur] === i, correct = q.answer === i;
+    let c = chosen ? 'sel' : '', mark = '';
+    if(locked && !ok){                       // trả lời sai: đánh dấu đáp án đúng, các ô còn lại mờ đi
+      if(correct){ c += ' right hasmark'; mark = `<span class="mark ok">${ICON_OK}</span>`; }
+      else if(chosen){ c += ' hasmark'; mark = `<span class="mark no">${ICON_NO}</span>`; }
+      else c += ' faded';
+    }
+    html += `<label class="opt ${c}">${mark}<input type="radio" name="q" value="${i}" ${chosen?'checked':''} ${locked?'disabled':''}><span class="rd"></span><span>${esc(o)}</span></label>`;
+  });
+  html += '</div>';
+  $('main').innerHTML = html;
+  const sh = $('sheet');
+  if(locked){
+    sh.hidden = false; sh.className = 'sheet ' + (ok ? 'ok' : 'no');
+    sh.innerHTML = `<button class="sh" type="button" aria-expanded="true"><span>${ok?TXT.correct:TXT.wrong}</span>${ICON_CHEV}</button><div class="sb"><p>${esc(ok?TXT.okMsg:TXT.noMsg)}</p>${q.exp?`<p>${esc(q.exp)}</p>`:''}</div>`;
+    sh.querySelector('.sh').onclick = e => { const m = sh.classList.toggle('min'); e.currentTarget.setAttribute('aria-expanded', !m); };
+  } else { sh.hidden = true; sh.innerHTML = ''; }
+  if(!locked) $('main').querySelectorAll('input').forEach(inp => inp.onchange = () => { sel[cur] = +inp.value; renderQuestion(); renderFoot(); });
+}
+
+function renderResult(){
+  $('card').classList.remove('answered'); $('sheet').hidden = true;
+  const n = correctCount(), pct = Math.round(n / Q.length * 100), pass = pct >= PASSING;
+  $('main').innerHTML = `<div class="result ${pass?'pass':'fail'}">
+    <div class="ring" style="--p:${pct}"><div><div><strong>${pct}%</strong><span>${esc(TXT.yourScore)}</span></div></div></div>
+    <div class="stats"><h2>${pass?TXT.okTitle:TXT.noTitle}</h2>
+      <dl><dt>${TXT.pts}</dt><dd>${n*POINTS} ${TXT.of} ${Q.length*POINTS}</dd><dt>${TXT.correctCount}</dt><dd>${n} ${TXT.of} ${Q.length}</dd>
+      <dt>${TXT.passing}</dt><dd>${PASSING}%</dd><dt>${TXT.status}</dt><dd>${pass?TXT.passed:TXT.failed}</dd></dl></div></div>`;
+}
+
+function renderFoot(){
+  const f = $('foot');
+  if(showResult){
+    f.className = 'two';
+    f.innerHTML = `<button class="btn ghost" id="bReview">${TXT.review}</button><button class="btn" id="bRetry">${TXT.retake}</button>`;
+    $('bReview').onclick = () => { review = true; showResult = false; cur = 0; render(); $('main').scrollTop = 0; };
+    $('bRetry').onclick = () => { sel = Q.map(() => null); done = Q.map(() => false); cur = 0; showResult = false; review = false; render(); $('main').scrollTop = 0; };
+    return;
+  }
+  f.className = '';
+  const last = cur === Q.length - 1;
+  let btn;
+  if(!done[cur]) btn = `<button class="btn" id="bSubmit" ${sel[cur] === null ? 'disabled' : ''}>${TXT.submit}</button>`;
+  else if(!last) btn = `<button class="btn" id="bNext">${TXT.next}${ICON_NEXT}</button>`;
+  else btn = `<button class="btn" id="bFinish">${review ? TXT.backResults : TXT.results}</button>`;
+  f.innerHTML = `<div class="info"><span>${TXT.score}: ${correctCount()*POINTS} ${TXT.of} ${Q.length*POINTS}</span><span>${TXT.question} ${cur+1} ${TXT.of} ${Q.length}</span></div>` + btn;
+  if($('bSubmit')) $('bSubmit').onclick = () => { done[cur] = true; render(); };
+  if($('bNext')) $('bNext').onclick = () => { cur++; render(); $('main').scrollTop = 0; };
+  if($('bFinish')) $('bFinish').onclick = () => {
+    if(done.every(Boolean)){ showResult = true; render(); }
+    else { cur = done.indexOf(false); render(); $('main').scrollTop = 0; }
+  };
+}
+
+function render(){
+  $('listbtn').hidden = false;
+  renderNav();
+  showResult ? renderResult() : renderQuestion();
+  renderFoot();
+}
+init();
+</script>
+</body>
+</html>
